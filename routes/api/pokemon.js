@@ -173,7 +173,7 @@ const getPokemon = async (res) => {
     try {
         console.log("redis")
         const cachePromise = redisClient.get("pokemon");
-        const timeoutPromise = new Promise((resolve, reject) => setTimeout(() => reject(new Error('Cache timeout')), 5000)); // 5000 milliseconds = 5 seconds
+        const timeoutPromise = new Promise((resolve, reject) => setTimeout(() => reject(new Error('Cache timeout')), 1000)); // 1000 milliseconds = 5 seconds
         const cacheResults = await Promise.race([cachePromise, timeoutPromise]);
         if (cacheResults) {
             console.log("data was taken from cache")
