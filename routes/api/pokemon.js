@@ -13,6 +13,9 @@ router.get('/', function(req,res,next) {
     res.json(pokemonList);
 })
 
+/**
+ * Just to search the list of pokemon. can search by type and id.
+ */
 router.get('/search', function(req, res, next) {
     const pokemonList = readPokemonData();
     const queryId = req.query.id;
