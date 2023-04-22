@@ -9,15 +9,39 @@ const basicAuth = require('express-basic-auth');
 let redisClient;
 
 (async () => {
-    redisClient = redis.createClient();
+    // Check if we are running in GitHub Actions using the environment variable
+    const isGithubActions = process.env.CI === 'true';
+
+    redisClient = redis.createClient({
+        retry_strategy: () => {
+            if (isGithubActions) {
+                console.log('Giving up on Redis connection in GitHub Actions.');
+                return undefined;
+            }
+            // Return an object with retry strategy if not in GitHub Actions
+            return {
+                error: {
+                    retry: 5000
+                }
+            };
+        }
+    });
 
     redisClient.on("error", (error) => console.error(`Error : ${error}`));
 
-    await Promise.race([
-        redisClient.connect(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Redis connection timed out')), 5000))
-    ]);
-    console.log("Redis connected. I think.")
+    try {
+        await Promise.race([
+            redisClient.connect(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Redis connection timed out')), 5000))
+        ]);
+        console.log("Redis connected. I think.");
+    } catch (error) {
+        if (isGithubActions) {
+            console.log('Skipping Redis connection in GitHub Actions.');
+        } else {
+            console.error(`Error: ${error.message}`);
+        }
+    }
 })();
 
 // Define the authentication middleware function
