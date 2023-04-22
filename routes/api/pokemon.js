@@ -3,6 +3,8 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const redis = require('redis');
+const basicAuth = require('express-basic-auth');
+
 
 let redisClient;
 
@@ -13,6 +15,12 @@ let redisClient;
 
     await redisClient.connect();
 })();
+
+// Define the authentication middleware function
+const authMiddleware = basicAuth({
+    users: { 'admin': 'password' },
+    challenge: true
+});
 
 const pokemonDataPath = path.join(__dirname, 'pokemonData.json');
 
@@ -61,7 +69,8 @@ router.get('/search', function(req, res, next) {
 });
 
 /* POST to insert pokemon */
-router.post('/', function(req, res, next) {
+router.post('/', authMiddleware,
+    function(req, res, next) {
     const { number, name, type1, type2 } = req.body;
     console.log('request body: ', req.body);
     console.log('number:', number);
@@ -91,7 +100,8 @@ router.post('/', function(req, res, next) {
 });
 
 /* put to update pokemon */
-router.put('/:number', function(req, res, next) {
+router.put('/:number', authMiddleware,
+    function(req, res, next) {
     const { name, type1, type2 } = req.body;
     const number = parseInt(req.params.number);
 
@@ -116,7 +126,8 @@ router.put('/:number', function(req, res, next) {
     }
 });
 
-router.delete('/:number', function(req, res, next) {
+router.delete('/:number', authMiddleware,
+    function(req, res, next) {
     const number = parseInt(req.params.number);
 
     try {
@@ -161,7 +172,9 @@ const getPokemon = async (res) => {
     let isCached = false;
     try {
         console.log("redis")
-        const cacheResults = await redisClient.get("pokemon");
+        const cachePromise = redisClient.get("pokemon");
+        const timeoutPromise = new Promise((resolve, reject) => setTimeout(() => reject(new Error('Cache timeout')), 5000)); // 5000 milliseconds = 5 seconds
+        const cacheResults = await Promise.race([cachePromise, timeoutPromise]);
         if (cacheResults) {
             console.log("data was taken from cache")
             isCached = true;

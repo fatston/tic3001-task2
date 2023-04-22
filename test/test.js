@@ -109,6 +109,7 @@ describe('API Tests for CRUD', function() {
         it('should insert a new Pokemon with status code 200', function(done) {
             chai.request(app)
                 .post('/api/pokemon')
+                .auth('admin', 'password')
                 .send({
                     number: 6969,
                     name: 'cliftonTestPokemonWrong',
@@ -143,6 +144,7 @@ describe('API Tests for CRUD', function() {
         it('should update the Pokemon with status code 200', function(done) {
             chai.request(app)
                 .put(`/api/pokemon/${pokemonId}`)
+                .auth('admin', 'password')
                 .send({
                     name: 'cliftonTestPokemon',
                     type1: 'Rock',
@@ -175,6 +177,7 @@ describe('API Tests for CRUD', function() {
         it('should delete the Pokemon with status code 200', function(done) {
             chai.request(app)
                 .delete(`/api/pokemon/${pokemonId}`)
+                .auth('admin', 'password')
                 .end(function(err, res) {
                     expect(res).to.have.status(200);
                     expect(res).to.be.json;
