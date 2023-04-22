@@ -5,6 +5,9 @@ const path = require('path');
 
 const pokemonDataPath = path.join(__dirname, 'pokemonData.json');
 
+/**
+ * Just to see the whole list of pokemon in json format
+ */
 router.get('/', function(req,res,next) {
     const pokemonList = readPokemonData();
     res.json(pokemonList);
