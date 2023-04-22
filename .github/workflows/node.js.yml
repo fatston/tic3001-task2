@@ -37,10 +37,7 @@ jobs:
       - run: npm ci
       - run: npm run build --if-present
       - name: Start Redis server
-        run: docker start $DOCKER_REDIS_ID
+        run: docker start ${{ services.redis.id }}
       - run: npm test
       - name: Stop Redis server
-        run: docker stop $DOCKER_REDIS_ID
-
-    env:
-      DOCKER_REDIS_ID: ${{ job.services.redis.id }}
+        run: docker stop ${{ services.redis.id }}
