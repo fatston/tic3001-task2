@@ -28,8 +28,7 @@ router.get('/search', function(req, res, next) {
             res.json(matchingPokemon);
             return;
         } else {
-            res.status(400).json({'error': 'couldn\'t find pokemon with id ' + queryId});
-            // todo change back to 404
+            res.status(404).json({'error': 'couldn\'t find pokemon with id ' + queryId});
             return;
         }
     }
