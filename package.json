@@ -7,6 +7,8 @@
     "test": "mocha"
   },
   "dependencies": {
+    "cache-manager": "^5.2.0",
+    "cache-manager-redis-store": "^3.0.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
@@ -15,7 +17,8 @@
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "passport": "^0.6.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "redis": "^4.6.5"
   },
   "devDependencies": {
     "chai": "^4.3.7",

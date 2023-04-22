@@ -12,18 +12,22 @@ describe('Baseline Test', function() {
 });
 
 describe('API Tests for GET', function() {
-    describe('GET /pokemon', function() {
-        it('should return a JSON object with status code 200', function(done) {
+    describe('GET /api/pokemon', function() {
+        it('should return an array of Pokemon objects with status code 200', function(done) {
             chai.request(app)
                 .get('/api/pokemon')
                 .end(function(err, res) {
                     expect(res).to.have.status(200);
                     expect(res).to.be.json;
-                    expect(res.body).to.be.an('array');
-                    expect(res.body[0]).to.have.property('number');
-                    expect(res.body[0]).to.have.property('name');
-                    expect(res.body[0]).to.have.property('type1');
-                    expect(res.body[0]).to.have.property('type2');
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.property('status');
+                    expect(res.body).to.have.property('message');
+                    expect(res.body).to.have.property('data');
+                    expect(res.body.data).to.be.an('array');
+                    expect(res.body.data[0]).to.have.property('number');
+                    expect(res.body.data[0]).to.have.property('name');
+                    expect(res.body.data[0]).to.have.property('type1');
+                    expect(res.body.data[0]).to.have.property('type2');
                     done();
                 });
         });

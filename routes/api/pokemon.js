@@ -2,6 +2,17 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const redis = require('redis');
+
+let redisClient;
+
+(async () => {
+    redisClient = redis.createClient();
+
+    redisClient.on("error", (error) => console.error(`Error : ${error}`));
+
+    await redisClient.connect();
+})();
 
 const pokemonDataPath = path.join(__dirname, 'pokemonData.json');
 
@@ -9,8 +20,9 @@ const pokemonDataPath = path.join(__dirname, 'pokemonData.json');
  * Just to see the whole list of pokemon in json format
  */
 router.get('/', function(req,res,next) {
-    const pokemonList = readPokemonData();
-    res.json(pokemonList);
+    getPokemon(async function(data) {
+        res.status(data.statusCode).json(data.data)
+    })
 })
 
 /**
@@ -71,6 +83,7 @@ router.post('/', function(req, res, next) {
         // write the updated pokemon data back to the JSON file
         writePokemonData(pokemonData);
         res.json({ "msg": "inserted pokemon", "newPokemon": newPokemon });
+        refreshRedis();
     } catch (err) {
         console.error(err);
         res.status(500).json({ "error": "failed to insert pokemon" });
@@ -96,6 +109,7 @@ router.put('/:number', function(req, res, next) {
         writePokemonData(pokemonData);
 
         res.json({ "msg": "updated pokemon", "updatedPokemon": updatedPokemon });
+        refreshRedis();
     } catch (err) {
         console.error(err);
         res.status(500).json({ "error": "failed to update pokemon" });
@@ -132,6 +146,40 @@ function readPokemonData() {
 function writePokemonData(pokemonList) {
     const pokemonData = JSON.stringify(pokemonList);
     fs.writeFileSync(pokemonDataPath, pokemonData);
+}
+
+function refreshRedis() {
+    let results = readPokemonData();
+    if (results.length === 0) {
+        console.log("Something went wrong while refreshing redis cache...");
+    }
+    redisClient.set("pokemon", JSON.stringify(results));
+}
+
+const getPokemon = async (res) => {
+    let results;
+    let isCached = false;
+    try {
+        console.log("redis")
+        const cacheResults = await redisClient.get("pokemon");
+        if (cacheResults) {
+            console.log("data was taken from cache")
+            isCached = true;
+            results = JSON.parse(cacheResults);
+        } else {
+            console.log("data was not from cache")
+            results = readPokemonData();
+            if (results.length === 0) {
+                res({"statusCode": 404, "data": {"status": "fail", "message": "list is empty", "data": []}})
+                return
+            }
+            await redisClient.set("pokemon", JSON.stringify(results));
+        }
+        res({"statusCode": 200, "data": {"status": "success", "message": "", "data": results}})
+    } catch (error) {
+        console.error(error);
+        res({"statusCode": 500, "data": {"status": "fail", "message": "Error retrieving data from Redis", "data": []}})
+    }
 }
 
 module.exports = router;
