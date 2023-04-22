@@ -6,28 +6,27 @@ const redis = require('redis');
 const basicAuth = require('express-basic-auth');
 
 
+class RedisAbortError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'RedisAbortError';
+    }
+}
+
 let redisClient;
 
 (async () => {
     // Check if we are running in GitHub Actions using the environment variable
     const isGithubActions = process.env.CI === 'true';
 
-    redisClient = redis.createClient({
-        retry_strategy: () => {
-            if (isGithubActions) {
-                console.log('Giving up on Redis connection in GitHub Actions.');
-                return undefined;
-            }
-            // Return an object with retry strategy if not in GitHub Actions
-            return {
-                error: {
-                    retry: 5000
-                }
-            };
-        }
-    });
+    redisClient = redis.createClient();
 
-    redisClient.on("error", (error) => console.error(`Error : ${error}`));
+    redisClient.on("error", (error) => {
+        if (isGithubActions && error.message.includes('ECONNREFUSED')) {
+            throw new RedisAbortError('Aborting Redis connection in GitHub Actions.');
+        }
+        console.error(`Error : ${error}`);
+    });
 
     try {
         await Promise.race([
@@ -36,7 +35,7 @@ let redisClient;
         ]);
         console.log("Redis connected. I think.");
     } catch (error) {
-        if (isGithubActions) {
+        if (error instanceof RedisAbortError) {
             console.log('Skipping Redis connection in GitHub Actions.');
         } else {
             console.error(`Error: ${error.message}`);
