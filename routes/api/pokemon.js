@@ -11,15 +11,9 @@ let redisClient;
 (async () => {
     redisClient = redis.createClient();
 
-    try {
-        await Promise.race([
-            new Promise((resolve) => redisClient.on('connect', resolve)),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Redis connection timed out')), 1000))
-        ]);
-        console.log('Redis connected');
-    } catch (err) {
-        console.error(err);
-    }
+    redisClient.on("error", (error) => console.error(`Error : ${error}`));
+
+    await redisClient.connect();
 })();
 
 // Define the authentication middleware function

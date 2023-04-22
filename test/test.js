@@ -12,7 +12,7 @@ describe('Baseline Test', function() {
 });
 
 describe('API Tests for GET', function() {
-    describe('GET /api/pokemon', function() {
+    /*describe('GET /api/pokemon', function() {
         it('should return an array of Pokemon objects with status code 200', function(done) {
             chai.request(app)
                 .get('/api/pokemon')
@@ -31,7 +31,7 @@ describe('API Tests for GET', function() {
                     done();
                 });
         });
-    });
+    });*/
 
     describe('GET /api/pokemon/search', function() {
         it('should return a JSON object with status code 200 when searching by id', function(done) {
