@@ -129,10 +129,10 @@ function readPokemonData() {
     return JSON.parse(fs.readFileSync(pokemonDataPath, 'utf-8'));
 }
 
-
 function writePokemonData(pokemonList) {
     const pokemonData = JSON.stringify(pokemonList);
     fs.writeFileSync(pokemonDataPath, pokemonData);
 }
 
 module.exports = router;
+module.exports.readPokemonData = readPokemonData;

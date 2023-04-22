@@ -1,11 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html translate="no">
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+  <h1>
+    <%= title %>
+    <a href="/add" onclick="alert('You need to log in to proceed.'); return false;">
+      <i class="fas fa-plus"></i>
+    </a>
+  </h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Number</th>
+          <th>Name</th>
+          <th>Type 1</th>
+          <th>Type 2</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% pokemonList.forEach(function(pokemon) { %>
+          <tr>
+            <td><%= pokemon.number %></td>
+            <td><%= pokemon.name %></td>
+            <td><%= pokemon.type1 %></td>
+            <td><%= pokemon.type2 %></td>
+            <td>
+              <a href="/edit/<%= pokemon.number %>" onclick="alert('You need to log in to proceed.'); return false;"><i class="fas fa-edit"></i></a>
+              <a href="/delete/<%= pokemon.number %>" onclick="alert('You need to log in to proceed.'); return false;"><i class="fas fa-trash-alt" style="color: red;"></i></a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
   </body>
 </html>

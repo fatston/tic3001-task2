@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { readPokemonData } = require('./api/pokemon');
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  const pokemonList = readPokemonData();
+  res.render('index', { title: 'Pokémon List', pokemonList: pokemonList });
 });
 
 module.exports = router;
